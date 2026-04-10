@@ -35,7 +35,7 @@ public class AnimationService {
     public List<AnimationSummaryResponse> getAnimations(CustomUserPrincipal principal) {
         // 회원과 비회원 모두 조회는 가능하다.
         validateViewer(principal);
-        return animationMetadataRepository.findAll()
+        return animationMetadataRepository.findAllWithLanguageAndCreator()
                 .stream()
                 .map(this::toSummaryResponse)
                 .toList();
@@ -45,7 +45,7 @@ public class AnimationService {
     public AnimationDetailResponse getAnimation(Long animationId, CustomUserPrincipal principal) {
         // 상세 조회도 조회 권한만 있으면 가능하다.
         validateViewer(principal);
-        AnimationMetadata metadata = animationMetadataRepository.findById(animationId)
+        AnimationMetadata metadata = animationMetadataRepository.findByIdWithLanguageAndCreator(animationId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "애니메이션을 찾을 수 없습니다."));
         return toDetailResponse(metadata);
     }
