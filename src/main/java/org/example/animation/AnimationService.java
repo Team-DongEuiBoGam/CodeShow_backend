@@ -20,26 +20,39 @@ public class AnimationService {
     private final AnimationMetadataRepository animationMetadataRepository;
     private final LanguageRepository languageRepository;
     private final UserRepository userRepository;
+    private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
 
     public AnimationService(
             AnimationMetadataRepository animationMetadataRepository,
             LanguageRepository languageRepository,
-            UserRepository userRepository
+            UserRepository userRepository,
+            com.fasterxml.jackson.databind.ObjectMapper objectMapper
     ) {
         this.animationMetadataRepository = animationMetadataRepository;
         this.languageRepository = languageRepository;
         this.userRepository = userRepository;
+        this.objectMapper = objectMapper;
     }
 
     @Transactional(readOnly = true)
-    public List<AnimationSummaryResponse> getAnimations(CustomUserPrincipal principal) {
+    public List<AnimationSummaryResponse> getAnimations(CustomUserPrincipal principal, Integer page, Integer size) {
         // 회원과 비회원 모두 조회는 가능하다.
-        // fetch join을 사용해 N+1 문제를 방지하고 한 번의 쿼리로 관련 엔티티를 조회한다.
+        // 단순 페이지네이션은 메모리에서 처리(초기 구현). 대용량 데이터에는 DB 기반 페이지네이션 권장.
         validateViewer(principal);
-        return animationMetadataRepository.findAllWithLanguageAndCreator()
-                .stream()
-                .map(this::toSummaryResponse)
-                .toList();
+        List<AnimationMetadata> all = animationMetadataRepository.findAllWithLanguageAndCreator();
+
+        if (page == null || size == null) {
+            return all.stream().map(this::toSummaryResponse).toList();
+        }
+
+        int p = Math.max(0, page);
+        int s = Math.max(1, size);
+        int fromIndex = p * s;
+        if (fromIndex >= all.size()) {
+            return java.util.List.of();
+        }
+        int toIndex = Math.min(all.size(), fromIndex + s);
+        return all.subList(fromIndex, toIndex).stream().map(this::toSummaryResponse).toList();
     }
 
     @Transactional(readOnly = true)
@@ -63,6 +76,13 @@ public class AnimationService {
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
         Language language = languageRepository.findById(request.languageId())
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "언어를 찾을 수 없습니다."));
+
+        // jsonData가 유효한 JSON인지 검증
+        try {
+            objectMapper.readTree(request.jsonData());
+        } catch (Exception ex) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "jsonData가 유효한 JSON이 아닙니다.");
+        }
 
         AnimationMetadata metadata = animationMetadataRepository.save(
                 new AnimationMetadata(

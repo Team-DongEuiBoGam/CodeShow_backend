@@ -27,8 +27,12 @@ public class AnimationController {
     }
 
     @GetMapping
-    public List<AnimationSummaryResponse> getAnimations(@AuthenticationPrincipal CustomUserPrincipal principal) {
-        return animationService.getAnimations(principal);
+    public List<AnimationSummaryResponse> getAnimations(
+            @AuthenticationPrincipal CustomUserPrincipal principal,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) Integer page,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) Integer size
+    ) {
+        return animationService.getAnimations(principal, page, size);
     }
 
     @GetMapping("/{animationId}")

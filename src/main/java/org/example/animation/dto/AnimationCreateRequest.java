@@ -16,6 +16,7 @@ public record AnimationCreateRequest(
         Long languageId,
 
         @NotBlank(message = "JSON 데이터는 필수입니다.")
+        @jakarta.validation.constraints.Size(max = 10000, message = "JSON 데이터는 최대 10000자 이하여야 합니다.")
         String jsonData
 ) {
 }
