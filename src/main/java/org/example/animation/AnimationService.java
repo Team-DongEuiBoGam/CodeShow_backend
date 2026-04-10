@@ -34,6 +34,7 @@ public class AnimationService {
     @Transactional(readOnly = true)
     public List<AnimationSummaryResponse> getAnimations(CustomUserPrincipal principal) {
         // 회원과 비회원 모두 조회는 가능하다.
+        // fetch join을 사용해 N+1 문제를 방지하고 한 번의 쿼리로 관련 엔티티를 조회한다.
         validateViewer(principal);
         return animationMetadataRepository.findAllWithLanguageAndCreator()
                 .stream()
@@ -44,6 +45,7 @@ public class AnimationService {
     @Transactional(readOnly = true)
     public AnimationDetailResponse getAnimation(Long animationId, CustomUserPrincipal principal) {
         // 상세 조회도 조회 권한만 있으면 가능하다.
+        // 단건 조회 역시 fetch join 메서드를 사용한다.
         validateViewer(principal);
         AnimationMetadata metadata = animationMetadataRepository.findByIdWithLanguageAndCreator(animationId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "애니메이션을 찾을 수 없습니다."));
