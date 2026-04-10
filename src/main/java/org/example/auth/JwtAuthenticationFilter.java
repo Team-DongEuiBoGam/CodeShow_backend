@@ -1,6 +1,5 @@
 package org.example.auth;
 
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -42,14 +41,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // 토큰에서 Claims를 파싱하여 필요한 정보를 안전하게 추출한다.
             Claims claims = jwtTokenProvider.parseClaims(token);
             Object userIdObj = claims.get("userId");
-            Long userId = null;
+            Integer userId = null;
             if (userIdObj instanceof Number) {
-                userId = ((Number) userIdObj).longValue();
+                userId = ((Number) userIdObj).intValue();
             } else if (userIdObj instanceof String) {
                 try {
-                    userId = Long.valueOf((String) userIdObj);
-                } catch (NumberFormatException ignored) {
-                }
+                    userId = Integer.valueOf((String) userIdObj);
+                } catch (NumberFormatException ignored) {}
             }
             String loginId = claims.get("loginId", String.class);
             String username = claims.get("username", String.class);

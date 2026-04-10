@@ -22,7 +22,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    private Long id;
+    private Integer id;
 
     @Column(name = "login_id", nullable = false, unique = true, length = 25)
     private String loginId;
@@ -47,7 +47,7 @@ public class User {
         this.createDate = LocalDate.now();
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 

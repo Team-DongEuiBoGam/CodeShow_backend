@@ -17,9 +17,7 @@ public class JwtTokenProvider {
         this.jwtProperties = jwtProperties;
     }
 
-    // 액세스 토큰을 생성합니다. 토큰에는 role, username, (회원일 경우) userId/loginId를 포함합니다.
-    // 토큰 서명에는 HS 알고리즘을 사용하며 시크릿 키는 JwtProperties에서 가져옵니다.
-    public String createAccessToken(Long userId, String loginId, String username, UserRole role) {
+    public String createAccessToken(Integer userId, String loginId, String username, UserRole role) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + jwtProperties.accessTokenExpirationMs());
 

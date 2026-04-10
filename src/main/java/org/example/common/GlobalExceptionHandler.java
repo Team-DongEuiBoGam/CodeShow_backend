@@ -50,4 +50,14 @@ public class GlobalExceptionHandler {
                         LocalDateTime.now()
                 ));
     }
+
+    @ExceptionHandler(ImageNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> handleImageNotSupported(ImageNotSupportedException ex) {
+        return ResponseEntity.badRequest()
+                .body(new ErrorResponse(
+                        HttpStatus.BAD_REQUEST.value(),
+                        ex.getMessage(),
+                        LocalDateTime.now()
+                ));
+    }
 }
