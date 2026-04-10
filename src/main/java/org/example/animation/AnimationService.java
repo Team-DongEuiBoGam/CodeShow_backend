@@ -9,6 +9,7 @@ import org.example.auth.User;
 import org.example.auth.UserRepository;
 import org.example.auth.UserRole;
 import org.example.common.ApiException;
+import org.example.common.ImageNotSupportedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,11 +57,11 @@ public class AnimationService {
     }
 
     @Transactional(readOnly = true)
-    public AnimationDetailResponse getAnimation(Long animationId, CustomUserPrincipal principal) {
+    public AnimationDetailResponse getAnimation(Integer animationId, CustomUserPrincipal principal) {
         // 상세 조회도 조회 권한만 있으면 가능하다.
         // 단건 조회 역시 fetch join 메서드를 사용한다.
         validateViewer(principal);
-        AnimationMetadata metadata = animationMetadataRepository.findByIdWithLanguageAndCreator(animationId)
+        AnimationMetadata metadata = animationMetadataRepository.findByIdWithLanguageAndCreator((long) animationId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "애니메이션을 찾을 수 없습니다."));
         return toDetailResponse(metadata);
     }
@@ -76,6 +77,10 @@ public class AnimationService {
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
         Language language = languageRepository.findById(request.languageId())
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "언어를 찾을 수 없습니다."));
+
+        if (request.originalCode().matches("(?i).*\\.(png|jpg|jpeg|gif|bmp)$")) {
+            throw new ImageNotSupportedException();
+        }
 
         // jsonData가 유효한 JSON인지 검증
         try {

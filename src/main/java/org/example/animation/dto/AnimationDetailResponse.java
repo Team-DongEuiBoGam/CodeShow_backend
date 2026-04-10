@@ -9,7 +9,7 @@ public record AnimationDetailResponse(
         String jsonData,
         Long languageId,
         String languageName,
-        Long creatorUserNumber,
+        Integer creatorUserNumber,
         String creatorUsername,
         LocalDate createdAt
 ) {

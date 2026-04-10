@@ -7,7 +7,7 @@ public record AnimationSummaryResponse(
         String animationName,
         Long languageId,
         String languageName,
-        Long creatorUserNumber,
+        Integer creatorUserNumber,
         String creatorUsername,
         LocalDate createdAt
 ) {

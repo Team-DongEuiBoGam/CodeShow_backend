@@ -15,15 +15,25 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.example.ai.AiService;
 
 @RestController
 @RequestMapping("/api/animations")
 public class AnimationController {
 
     private final AnimationService animationService;
+    private final AiService aiService;
 
-    public AnimationController(AnimationService animationService) {
+    // 💡 이 생성자 하나만 남겨두면 스프링이 알아서 두 서비스 모두 주입(Autowired)해 줍니다!
+    public AnimationController(AnimationService animationService, AiService aiService) {
         this.animationService = animationService;
+        this.aiService = aiService;
+    }
+
+    // AI 분석 결과만 미리 확인하는 API
+    @PostMapping("/analyze")
+    public String analyzeOnly(@RequestBody String originalCode) {
+        return aiService.analyzeCode(originalCode);
     }
 
     @GetMapping
@@ -37,7 +47,7 @@ public class AnimationController {
 
     @GetMapping("/{animationId}")
     public AnimationDetailResponse getAnimation(
-            @PathVariable Long animationId,
+            @PathVariable Integer animationId,
             @AuthenticationPrincipal CustomUserPrincipal principal
     ) {
         return animationService.getAnimation(animationId, principal);
