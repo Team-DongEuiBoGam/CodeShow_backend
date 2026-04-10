@@ -43,8 +43,8 @@ public class JwtTokenProvider {
         return Jwts.parser()
                 .verifyWith(getSigningKey())
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
     private SecretKey getSigningKey() {

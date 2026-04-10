@@ -40,22 +40,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             Claims claims = jwtTokenProvider.parseClaims(token);
-            Object userIdObj = claims.get("userId");
-            Long userId = null;
-            if (userIdObj instanceof Number) {
-                userId = ((Number) userIdObj).longValue();
-            } else if (userIdObj instanceof String) {
-                try {
-                    userId = Long.valueOf((String) userIdObj);
-                } catch (NumberFormatException ignored) {
-                }
-            }
-
+            Long userId = claims.get("userId", Long.class);
             String loginId = claims.get("loginId", String.class);
             String username = claims.get("username", String.class);
-            String roleStr = claims.get("role", String.class);
-            UserRole role = roleStr != null ? UserRole.valueOf(roleStr) : UserRole.GUEST;
-
+            UserRole role = UserRole.valueOf(claims.get("role", String.class));
             CustomUserPrincipal userDetails = new CustomUserPrincipal(
                     userId,
                     loginId,
@@ -72,7 +60,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     );
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authentication);
-        } catch (Exception ex) {
+        } catch (JwtException ex) {
             SecurityContextHolder.clearContext();
         }
 
