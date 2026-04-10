@@ -39,6 +39,7 @@ public class JwtTokenProvider {
         return builder.compact();
     }
 
+    // JWT를 검증하고 Claims를 반환합니다. parseSignedClaims는 서명된 JWT의 페이로드를 추출합니다.
     public Claims parseClaims(String token) {
         return Jwts.parser()
                 .verifyWith(getSigningKey())

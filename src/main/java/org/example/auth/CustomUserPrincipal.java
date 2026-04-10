@@ -6,6 +6,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+// 사용자 인증 정보를 담는 UserDetails 구현입니다.
+// 주로 Security 컨텍스트에 현재 사용자의 정보를 제공하는 용도로 사용됩니다.
 public class CustomUserPrincipal implements UserDetails {
 
     private final Integer userId;
