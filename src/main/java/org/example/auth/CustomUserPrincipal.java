@@ -8,13 +8,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 public class CustomUserPrincipal implements UserDetails {
 
-    private final Long userId;
+    private final Integer userId;
     private final String loginId;
     private final String username;
     private final String passwordHash;
     private final UserRole role;
 
-    public CustomUserPrincipal(Long userId, String loginId, String username, String passwordHash, UserRole role) {
+    public CustomUserPrincipal(Integer userId, String loginId, String username, String passwordHash, UserRole role) {
         this.userId = userId;
         this.loginId = loginId;
         this.username = username;
@@ -22,7 +22,7 @@ public class CustomUserPrincipal implements UserDetails {
         this.role = role;
     }
 
-    public Long getUserId() {
+    public Integer getUserId() {
         return userId;
     }
 

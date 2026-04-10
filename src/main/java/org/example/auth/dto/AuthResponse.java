@@ -1,7 +1,7 @@
 package org.example.auth.dto;
 
 public record AuthResponse(
-        Long userId,
+        Integer userId,
         String loginId,
         String username,
         String role,

@@ -17,7 +17,7 @@ public class JwtTokenProvider {
         this.jwtProperties = jwtProperties;
     }
 
-    public String createAccessToken(Long userId, String loginId, String username, UserRole role) {
+    public String createAccessToken(Integer userId, String loginId, String username, UserRole role) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + jwtProperties.accessTokenExpirationMs());
 
