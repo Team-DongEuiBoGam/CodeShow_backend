@@ -1,100 +1,360 @@
-# IntelliJ와 Github로 협업하기
+# 인증 시스템
 
-### 🛠️ 1단계: 필수 준비물 챙기기 (사전 세팅)
+## 회원가입 API
 
-가장 먼저 컴퓨터에 기본 도구들이 깔려있어야 합니다.
+### API 개요
 
-1. **Git 설치:** 컴퓨터가 버전 관리를 할 수 있게 해주는 프로그램입니다. (Git 공식 홈페이지에서 다운로드 및 설치)
-2. **GitHub 계정:** 온라인 저장소입니다. 계정이 없다면 가입을 안내해 주세요.
+| **항목** | **내용** |
+| --- | --- |
+| **API 이름** | 회원가입 (Signup) |
+| **설명** | 신규 사용자의 계정을 생성하고 즉시 로그인 처리(JWT 발급)를 수행함 |
+| **HTTP Method** | `POST` |
+| **Endpoint** | `/api/auth/signup` |
+| **요청 형식** | JSON (Request Body) |
+| **응답 형식** | JSON |
+| **인증 필요 여부** | 불필요 |
+
+
+
+### Request Body
+
+- **클라이언트에서 전송하는 JSON 파라미터:**
+    
+    ```json
+    {
+      "loginId": "developer_kim",
+      "password": "securePassword123!",
+      "username": "개발자킴"
+    }
+    ```
+    
+
+- **Request Body 설명**
+    
+    
+    | **파라미터명** | **위치** | **타입** | **설명** | **필수** |
+    | --- | --- | --- | --- | --- |
+    | `loginId` | Body | String | 사용할 로그인 아이디 (4~25자, 영문/숫자/밑줄만 허용) | Ο |
+    | `password` | Body | String | 비밀번호 (최소 8자 이상) | Ο |
+    | `username` | Body | String | 사용자 닉네임 (최대 10자) | Ο |
+
+
+
+### Validations (백엔드 검증 규칙)
+
+- **중복 아이디 확인**
+    - `loginId`가 DB(`user_mst`)에 이미 존재하는지 확인
+    - 존재하면 400 Bad Request 처리 ("이미 사용 중인 아이디입니다.")
+- **입력값 유효성 검사 (Validation)**
+    - `loginId`, `password`, `username` 누락 여부 확인
+    - 길이 제한 및 정규식 위반 시 400 Bad Request 처리
+
+
+
+### 성공 Response
+
+- **201 Created**
+
+```json
+{
+  "userId": 5,
+  "loginId": "developer_kim",
+  "username": "개발자킴",
+  "role": "USER",
+  "accessToken": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1Iiwi..."
+}
+```
+
+
+
+### 실패 Response
+
+- **400 Bad Request - 중복 아이디 / 형식 오류**
+
+```json
+{
+  "status": 400,
+  "message": "이미 사용 중인 아이디입니다.",
+  "timestamp": "2026-04-11T19:05:22"
+}
+```
+
+
+
+### 생성 시 처리사항 (Backend Logic)
+
+| **처리** | **설명** |
+| --- | --- |
+| **비밀번호 암호화** | `BCryptPasswordEncoder`를 사용하여 평문 비밀번호 단방향 해싱 처리 |
+| **데이터 삽입** | `user_mst` 테이블에 신규 회원 정보 Insert (생성일자 `createDate` 자동 기록) |
+| **JWT 발급** | 가입 완료 후 즉시 사용 가능한 인증 토큰(Access Token) 생성 후 반환 |
+
+
+
+### 실행되는 SQL 예시
+
+```sql
+-- 1. 아이디 중복 확인을 위한 조회
+SELECT COUNT(*) FROM user_mst WHERE login_id = 'developer_kim';
+
+-- 2. 사용자 생성 (비밀번호는 암호화된 상태)
+INSERT INTO user_mst (login_id, password, user_name, create_date)
+VALUES ('developer_kim', '$2a$10$w...암호화된문자열...', '개발자킴', '2026-04-11');
+```
 
 ---
 
-### 🔗 2단계: 인텔리제이와 깃허브 연결하기
+## 로그인 API
 
-인텔리제이가 내 깃허브 계정을 알아볼 수 있게 연결해 주는 작업입니다. 한 번만 해두면 됩니다.
+### API 개요
 
-1. 인텔리제이를 켭니다.
-2. `File` > `Settings` (Mac은 `IntelliJ IDEA` > `Preferences`)로 들어갑니다.
-3. 좌측 메뉴에서 `Version Control` > `GitHub`을 클릭합니다.
-4. `+` 버튼을 누르고 `Log In via GitHub...`을 선택해 웹 브라우저에서 로그인하고 권한을 허용해 줍니다.
+| **항목** | **내용** |
+| --- | --- |
+| **API 이름** | 로그인 (Login) |
+| **설명** | 기존 사용자의 아이디와 비밀번호를 검증하고 JWT 토큰을 발급함 |
+| **HTTP Method** | `POST` |
+| **Endpoint** | `/api/auth/login` |
+| **요청 형식** | JSON (Request Body) |
+| **응답 형식** | JSON |
+| **인증 필요 여부** | 불필요 |
+
+
+
+### Request Body
+
+- 클라이언트에서 전송하는 JSON 파라미터:
+
+```json
+{
+  "loginId": "developer_kim",
+  "password": "securePassword123!"
+}
+```
+
+- **Request Body 설명**
+    
+    
+    | **파라미터명** | **위치** | **타입** | **설명** | **필수** |
+    | --- | --- | --- | --- | --- |
+    | `loginId` | Body | String | 사용자의 로그인 아이디 | Ο |
+    | `password` | Body | String | 사용자의 비밀번호 | Ο |
+
+
+
+### Validations (백엔드 검증 규칙)
+
+- **입력값 유효성 검사 (Validation)**
+    - `loginId`, `password` 누락 여부 확인
+- **로그인 및 권한 확인**
+    - `AuthenticationManager`를 통해 아이디와 비밀번호 일치 여부 검증
+    - 검증 실패 시 401 Unauthorized 처리 ("아이디 또는 비밀번호가 올바르지 않습니다.")
+- **존재 여부 확인**
+    - 인증 성공 후 해당 사용자가 DB에 존재하는지 확인 (없으면 404 Not Found)
+
+
+
+### 성공 Response
+
+- **200 OK**
+    
+    ```json
+    {
+      "userId": 5,
+      "loginId": "developer_kim",
+      "username": "개발자킴",
+      "role": "USER",
+      "accessToken": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1Iiwi..."
+    }
+    ```
+
+
+
+### 실패 Response
+
+- **401 Unauthorized - 아이디 또는 비밀번호 불일치**
+    
+    ```json
+    {
+      "status": 401,
+      "message": "아이디 또는 비밀번호가 올바르지 않습니다.",
+      "timestamp": "2026-04-11T19:10:00"
+    }
+    ```
+
+
+
+### 생성 시 처리사항 (Backend Logic)
+
+| **처리** | **설명** |
+| --- | --- |
+| **인증 정보 검증** | 입력된 비밀번호를 암호화된 DB 비밀번호와 대조하여 시큐리티 컨텍스트에서 검증 |
+| **회원 정보 조회** | 검증 완료 후 `user_mst` 테이블에서 사용자 기본 정보 조회 |
+| **JWT 발급** | 인증 성공 시 사용자의 ID, 이름, 권한(Role)을 담은 Access Token 생성 후 반환 |
+
+
+
+### 실행되는 SQL 예시
+
+```sql
+-- 1. 사용자 인증 및 토큰 발급을 위한 정보 조회
+SELECT * FROM user_mst WHERE login_id = 'developer_kim';
+```
 
 ---
 
-### 📥 3단계: 프로젝트 가져오기 (Clone)
+## 비회원 로그인 API
 
-팀의 공용 작업 공간(GitHub)에 있는 코드를 내 컴퓨터로 처음 가져오는 과정입니다.
+### API 개요
 
-1. 깃허브 저장소(Repository) 페이지에서 초록색 **`<> Code`** 버튼을 누르고 URL을 복사합니다.
-2. 인텔리제이 시작 화면에서 **`Get from VCS`*를 클릭합니다. (또는 상단 메뉴 `Git` > `Clone`)
-3. 복사한 URL을 붙여넣고 **`Clone`** 버튼을 누릅니다.
-4. 이제 내 컴퓨터에 프로젝트 폴더가 생성되었습니다! 🎉
+| **항목** | **내용** |
+| --- | --- |
+| **API 이름** | 비회원 로그인 (Guest Login) |
+| **설명** | 비회원 사용자를 위한 임시 게스트 토큰을 발급함 |
+| **HTTP Method** | `POST` |
+| **Endpoint** | `/api/auth/guest-login` |
+| **요청 형식** | 없음 |
+| **응답 형식** | JSON |
+| **인증 필요 여부** | 불필요 |
 
----
 
-### 🔄 4단계: 가장 중요한 기본 작업 사이클 (Pull 👉 Commit 👉 Push)
 
-이 세 가지만 기억하면 기본적인 작업은 다 할 수 있어요!
+### Request Body
 
-**1. Pull (당겨오기) : "작업 시작 전, 최신 상태로 맞추기"**
+- 별도의 Request Body를 전송하지 않습니다.
 
-- 다른 팀원이 먼저 수정해서 깃허브에 올려둔 내용이 있을 수 있습니다. 내 컴퓨터 코드를 최신화하는 작업입니다.
-- **방법:** 인텔리제이 우측 상단의 파란색 화살표(`↙️`) 아이콘을 클릭하거나, 상단 메뉴 `Git` > `Update Project`를 누릅니다.
-- **💡 팁:** 코드를 작성하기 전이나, 아침에 출근/작업 시작할 때 습관적으로 누르라고 알려주세요!
 
-**2. Commit (사진 찍기) : "내 컴퓨터에 작업 내역 저장하기"**
 
-- 작업을 마치고 "이 상태를 기록으로 남겨야지!" 할 때 찰칵 하고 사진을 찍는 것과 같습니다. 아직 깃허브에는 안 올라간 상태입니다.
-- **방법:** 좌측의 `Commit` 탭(보통 왼쪽 가장자리에 있음)을 열거나 `Ctrl + K` (Mac은 `Cmd + K`)를 누릅니다.
-- 수정한 파일들에 체크박스를 표시하고, 아래에 **"어떤 작업을 했는지 (Commit Message)"**를 적은 후 `Commit` 버튼을 누릅니다.
+### Validations (백엔드 검증 규칙)
 
-**3. Push (밀어 올리기) : "깃허브에 내 작업물 공유하기"**
+- 별도의 검증 로직 없이 즉시 임시 닉네임과 토큰을 생성합니다.
 
-- 내 컴퓨터에 찍어둔 사진(Commit)들을 모두가 볼 수 있게 온라인(GitHub)으로 밀어 올리는 작업입니다.
-- **방법:** 인텔리제이 우측 상단의 초록색 화살표(`↗️`) 아이콘을 클릭하거나, `Ctrl + Shift + K` (Mac은 `Cmd + Shift + K`)를 누릅니다.
-- 내가 올릴 내역을 확인하고 `Push` 버튼을 누릅니다.
 
----
 
-### 🌿 5단계: 협업의 핵심, 브랜치 (Branch)
+## 성공 Response
 
-여러 명이 하나의 코드를 동시에 수정하면 엉킬 수 있습니다. 그래서 **"나만의 복사본 작업 공간"**을 만드는 것이 브랜치입니다.
+- **200 OK**
+    
+    ```json
+    {
+      "userId": null,
+      "loginId": null,
+      "username": "guest-1712838392012",
+      "role": "GUEST",
+      "accessToken": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJndWVzdCIs..."
+    }
+    ```
 
-1. **브랜치 만들기:** 인텔리제이 우측 하단에 `main` (또는 `master`)이라고 적힌 글자를 클릭하고, **`New Branch`*를 선택해 내 작업 이름(예: `feature/login`)을 적고 만듭니다.
-2. **작업 후 Push:** 이 공간에서 열심히 코드를 짜고 위에서 배운 Commit -> Push를 합니다.
-3. **PR (Pull Request) 날리기:** 깃허브 사이트로 가서 "제가 만든 복사본(Branch)을 원본(Main)에 합쳐주세요~"라고 요청하는 글을 남깁니다.
 
----
 
-### 📝 커밋 메시지의 기본 공식
+### 처리사항 (Backend Logic)
 
-가장 기본이 되는 형태는 **`태그: 작업한 내용`** 입니다. 앞에 태그(머리말)를 달아주면 어떤 종류의 작업인지 한눈에 파악할 수 있습니다.
-
-**[자주 쓰는 핵심 태그 5가지]**
-
-- ✨ **`feat:`** : 새로운 기능 추가 (예: 회원가입 기능 추가, 로그인 버튼 추가)
-- 🐛 **`fix:`** : 버그나 오류 수정 (예: 로그인 안 되는 문제 수정)
-- 📝 **`docs:`** : 문서 수정 (예: README.md 파일 작성, 주석 추가)
-- 💄 **`style:`** : 코드 포맷팅, 세미콜론 누락, 들여쓰기 수정 (코드 자체의 동작은 변함없을 때)
-- 🛠️ **`chore:`** : 빌드 설정, 패키지 매니저(라이브러리) 추가, 그 외 자잘한 설정 변경
-
-*(여유가 된다면 아래 태그도 추가로 알려주시면 좋습니다)*
-
-- ♻️ **`refactor:`** : 코드 리팩토링 (기능은 똑같은데 코드를 더 깔끔하고 효율적으로 개선했을 때)
-- ✅ **`test:`** : 테스트 코드 추가 및 수정
+| **처리** | **설명** |
+| --- | --- |
+| **데이터 미저장** | 비회원은 `user_mst` DB에 데이터를 저장하지 않습니다. |
+| **임시 이름 생성** | `guest-` 접두사와 현재 시간(System.currentTimeMillis)을 조합하여 임시 닉네임을 생성합니다. |
+| **JWT 발급** | GUEST 권한을 가진 임시 Access Token을 즉시 생성하여 응답으로 반환합니다. |
 
 ---
 
-### ⭕ 좋은 예시 vs ❌ 나쁜 예시
+## 내 정보 조회 API
 
-- **나쁜 예시 (무엇을 했는지 알 수 없음) 😥**
-    - `수정함`
-    - `진짜 최종`
-    - `로그인 에러 고침`
-    - `이것저것 많이 함`
-- **좋은 예시 (태그와 명확한 목적) 😊**
-    - `feat: 카카오 소셜 로그인 기능 추가`
-    - `fix: 메인 페이지 이미지 안 뜨는 오류 수정`
-    - `docs: README.md 프로젝트 실행 방법 추가`
-    - `chore: 스프링 부트 관련 라이브러리 추가`
+### API 개요
 
----
+| **항목** | **내용** |
+| --- | --- |
+| **API 이름** | 내 정보 조회 (Get Current User) |
+| **설명** | 현재 로그인한 사용자(회원 또는 게스트)의 정보를 조회함 |
+| **HTTP Method** | `GET` |
+| **Endpoint** | `/api/auth/me` |
+| **요청 형식** | Header (JWT 토큰) |
+| **응답 형식** | JSON |
+| **인증 필요 여부** | 필요 (회원 및 비회원 게스트 모두 조회 가능) |
+
+
+
+### Request Header
+
+- 헤더에 인증 토큰을 담아 전송해야 합니다.
+    
+    ```html
+    Authorization: Bearer {accessToken}
+    ```
+
+
+
+### Validations (백엔드 검증 규칙)
+
+- **로그인 및 인증 확인**
+    - 헤더로 전달된 JWT 토큰의 유효성을 검증합니다.
+    - 토큰이 없거나 만료된 경우 401 Unauthorized 처리됩니다.
+- **회원 존재 여부 확인 (회원의 경우)**
+    - 회원(`ROLE_USER`) 토큰인 경우 DB에서 해당 회원의 정보를 다시 조회하여 존재하는지 확인합니다 (없을 경우 404 Not Found).
+
+
+
+### 성공 Response
+
+- **200 OK (회원일 경우)**
+    
+    ```json
+    {
+      "userId": 5,
+      "loginId": "developer_kim",
+      "username": "개발자킴",
+      "role": "USER"
+    }
+    ```
+    
+- **200 OK (비회원 게스트일 경우)**
+    
+    ```json
+    {
+      "userId": null,
+      "loginId": null,
+      "username": "guest-1712838392012",
+      "role": "GUEST"
+    }
+    ```
+    
+
+
+### 실패 Response
+
+- **401 Unauthorized - 인증 실패 (유효하지 않은 토큰이거나 인증 정보가 누락된 경우 발생합니다.)**
+    
+    ```json
+    {
+      "status": 401,
+      "message": "인증이 필요합니다.",
+      "timestamp": null
+    }
+    ```
+    
+- **404 Not Found - 사용자를 찾을 수 없음** (회원 정보가 삭제된 경우 등)
+    
+    ```json
+    {
+      "status": 404,
+      "message": "사용자를 찾을 수 없습니다.",
+      "timestamp": "2026-04-11T19:30:00"
+    }
+    ```
+    
+
+
+### 처리사항 (Backend Logic)
+
+| **처리** | **설명** |
+| --- | --- |
+| **사용자 권한 분기** | 시큐리티 컨텍스트에 담긴 `CustomUserPrincipal`의 역할을 확인하여 회원과 게스트 요청을 분기 처리합니다. |
+| **회원 정보 조회** | 회원의 경우 최신 정보를 내려주기 위해 `user_mst` 테이블을 조회합니다. |
+| **게스트 정보 응답** | 게스트의 경우 DB 조회 없이 토큰에 저장된 임시 이름(displayName) 정보를 그대로 내려줍니다. |
+
+
+
+### 실행되는 SQL 예시 (회원일 경우)
+
+```sql
+-- 회원 토큰으로 접근 시 최신 정보를 확인하기 위해 조회 실행
+SELECT * FROM user_mst WHERE user_id = 5;
+```
