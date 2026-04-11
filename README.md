@@ -3,7 +3,7 @@
 <br>
 
 <details>
-<summary> ## 회원가입 API </summary>
+<summary> ## 회원가입 API
 
 ### API 개요
 
@@ -104,6 +104,7 @@ SELECT COUNT(*) FROM user_mst WHERE login_id = 'developer_kim';
 INSERT INTO user_mst (login_id, password, user_name, create_date)
 VALUES ('developer_kim', '$2a$10$w...암호화된문자열...', '개발자킴', '2026-04-11');
 ```
+</summary>
 </details>
   
 
