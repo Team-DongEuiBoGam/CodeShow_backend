@@ -34,7 +34,4 @@ CREATE TABLE IF NOT EXISTS animation_mst (
 INSERT IGNORE INTO language_mst (language_id, language_name) VALUES
     (1, 'Java'),
     (2, 'Python'),
-    (3, 'JavaScript'),
-    (4, 'C'),
-    (5, 'C++'),
-    (6, 'C#');
+    (3, 'C');
