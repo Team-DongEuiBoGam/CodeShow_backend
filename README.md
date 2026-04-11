@@ -1,4 +1,5 @@
 # 애니메이션 API
+---
 
 ## 애니메이션 저장 API
 
@@ -122,6 +123,8 @@ INSERT INTO animation_mst (animation_name, original_code, json_data, create_date
 VALUES ('버블 정렬 시각화', 'int[] arr = {5, 3, 1};', '{"frames": 10, "type": "sort"}', '2026-04-11', 5, 1);
 ```
 
+---
+
 ## 애니메이션 목록 조회 API
 
 ### API 개요
@@ -216,6 +219,8 @@ SELECT a.*, l.*, u.* FROM animation_mst a
 INNER JOIN language_mst l ON a.language_id = l.language_id 
 INNER JOIN user_mst u ON a.user_id = u.user_id;
 ```
+
+---
 
 ## 애니메이션 상세 조회 API
 
