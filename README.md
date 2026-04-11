@@ -1,100 +1,316 @@
-# IntelliJ와 Github로 협업하기
+# 애니메이션 API
 
-### 🛠️ 1단계: 필수 준비물 챙기기 (사전 세팅)
+## 애니메이션 저장 API
 
-가장 먼저 컴퓨터에 기본 도구들이 깔려있어야 합니다.
+### API 개요
 
-1. **Git 설치:** 컴퓨터가 버전 관리를 할 수 있게 해주는 프로그램입니다. (Git 공식 홈페이지에서 다운로드 및 설치)
-2. **GitHub 계정:** 온라인 저장소입니다. 계정이 없다면 가입을 안내해 주세요.
-
----
-
-### 🔗 2단계: 인텔리제이와 깃허브 연결하기
-
-인텔리제이가 내 깃허브 계정을 알아볼 수 있게 연결해 주는 작업입니다. 한 번만 해두면 됩니다.
-
-1. 인텔리제이를 켭니다.
-2. `File` > `Settings` (Mac은 `IntelliJ IDEA` > `Preferences`)로 들어갑니다.
-3. 좌측 메뉴에서 `Version Control` > `GitHub`을 클릭합니다.
-4. `+` 버튼을 누르고 `Log In via GitHub...`을 선택해 웹 브라우저에서 로그인하고 권한을 허용해 줍니다.
+| **항목** | **내용** |
+| --- | --- |
+| **API 이름** | 애니메이션 저장 (Create Animation) |
+| **설명** | 사용자가 작성한 원본 코드와 AI가 분석한 JSON 데이터를 매핑하여 저장함 |
+| **HTTP Method** | `POST` |
+| **Endpoint** | `/api/animations` |
+| **요청 형식** | JSON (Request Body) |
+| **응답 형식** | JSON |
+| **인증 필요 여부** | 필요 (회원인 `ROLE_USER`만 가능, 비회원 게스트 불가) |
 
 ---
 
-### 📥 3단계: 프로젝트 가져오기 (Clone)
+### Request Body
 
-팀의 공용 작업 공간(GitHub)에 있는 코드를 내 컴퓨터로 처음 가져오는 과정입니다.
+- 클라이언트에서 전송하는 JSON 파라미터:
 
-1. 깃허브 저장소(Repository) 페이지에서 초록색 **`<> Code`** 버튼을 누르고 URL을 복사합니다.
-2. 인텔리제이 시작 화면에서 **`Get from VCS`*를 클릭합니다. (또는 상단 메뉴 `Git` > `Clone`)
-3. 복사한 URL을 붙여넣고 **`Clone`** 버튼을 누릅니다.
-4. 이제 내 컴퓨터에 프로젝트 폴더가 생성되었습니다! 🎉
+JSON
 
----
+```json
+{
+  "animationName": "버블 정렬 시각화",
+  "originalCode": "int[] arr = {5, 3, 1};",
+  "languageId": 1,
+  "jsonData": "{\"frames\": 10, \"type\": \"sort\"}"
+}
+```
 
-### 🔄 4단계: 가장 중요한 기본 작업 사이클 (Pull 👉 Commit 👉 Push)
+- **Request Body 설명**
 
-이 세 가지만 기억하면 기본적인 작업은 다 할 수 있어요!
-
-**1. Pull (당겨오기) : "작업 시작 전, 최신 상태로 맞추기"**
-
-- 다른 팀원이 먼저 수정해서 깃허브에 올려둔 내용이 있을 수 있습니다. 내 컴퓨터 코드를 최신화하는 작업입니다.
-- **방법:** 인텔리제이 우측 상단의 파란색 화살표(`↙️`) 아이콘을 클릭하거나, 상단 메뉴 `Git` > `Update Project`를 누릅니다.
-- **💡 팁:** 코드를 작성하기 전이나, 아침에 출근/작업 시작할 때 습관적으로 누르라고 알려주세요!
-
-**2. Commit (사진 찍기) : "내 컴퓨터에 작업 내역 저장하기"**
-
-- 작업을 마치고 "이 상태를 기록으로 남겨야지!" 할 때 찰칵 하고 사진을 찍는 것과 같습니다. 아직 깃허브에는 안 올라간 상태입니다.
-- **방법:** 좌측의 `Commit` 탭(보통 왼쪽 가장자리에 있음)을 열거나 `Ctrl + K` (Mac은 `Cmd + K`)를 누릅니다.
-- 수정한 파일들에 체크박스를 표시하고, 아래에 **"어떤 작업을 했는지 (Commit Message)"**를 적은 후 `Commit` 버튼을 누릅니다.
-
-**3. Push (밀어 올리기) : "깃허브에 내 작업물 공유하기"**
-
-- 내 컴퓨터에 찍어둔 사진(Commit)들을 모두가 볼 수 있게 온라인(GitHub)으로 밀어 올리는 작업입니다.
-- **방법:** 인텔리제이 우측 상단의 초록색 화살표(`↗️`) 아이콘을 클릭하거나, `Ctrl + Shift + K` (Mac은 `Cmd + Shift + K`)를 누릅니다.
-- 내가 올릴 내역을 확인하고 `Push` 버튼을 누릅니다.
+| **파라미터명** | **위치** | **타입** | **설명** | **필수** |
+| --- | --- | --- | --- | --- |
+| `animationName` | Body | String | 애니메이션 이름 (최대 25자) | O |
+| `originalCode` | Body | String | 작성된 원본 소스 코드 | O |
+| `languageId` | Body | Integer | 사용된 프로그래밍 언어의 고유 ID (`language_id`) | O |
+| `jsonData` | Body | String | AI 모델이 반환한 시각화용 JSON 문자열 (최대 10000자) | O |
 
 ---
 
-### 🌿 5단계: 협업의 핵심, 브랜치 (Branch)
+### Validations (백엔드 검증 규칙)
 
-여러 명이 하나의 코드를 동시에 수정하면 엉킬 수 있습니다. 그래서 **"나만의 복사본 작업 공간"**을 만드는 것이 브랜치입니다.
-
-1. **브랜치 만들기:** 인텔리제이 우측 하단에 `main` (또는 `master`)이라고 적힌 글자를 클릭하고, **`New Branch`*를 선택해 내 작업 이름(예: `feature/login`)을 적고 만듭니다.
-2. **작업 후 Push:** 이 공간에서 열심히 코드를 짜고 위에서 배운 Commit -> Push를 합니다.
-3. **PR (Pull Request) 날리기:** 깃허브 사이트로 가서 "제가 만든 복사본(Branch)을 원본(Main)에 합쳐주세요~"라고 요청하는 글을 남깁니다.
-
----
-
-### 📝 커밋 메시지의 기본 공식
-
-가장 기본이 되는 형태는 **`태그: 작업한 내용`** 입니다. 앞에 태그(머리말)를 달아주면 어떤 종류의 작업인지 한눈에 파악할 수 있습니다.
-
-**[자주 쓰는 핵심 태그 5가지]**
-
-- ✨ **`feat:`** : 새로운 기능 추가 (예: 회원가입 기능 추가, 로그인 버튼 추가)
-- 🐛 **`fix:`** : 버그나 오류 수정 (예: 로그인 안 되는 문제 수정)
-- 📝 **`docs:`** : 문서 수정 (예: README.md 파일 작성, 주석 추가)
-- 💄 **`style:`** : 코드 포맷팅, 세미콜론 누락, 들여쓰기 수정 (코드 자체의 동작은 변함없을 때)
-- 🛠️ **`chore:`** : 빌드 설정, 패키지 매니저(라이브러리) 추가, 그 외 자잘한 설정 변경
-
-*(여유가 된다면 아래 태그도 추가로 알려주시면 좋습니다)*
-
-- ♻️ **`refactor:`** : 코드 리팩토링 (기능은 똑같은데 코드를 더 깔끔하고 효율적으로 개선했을 때)
-- ✅ **`test:`** : 테스트 코드 추가 및 수정
+- **로그인 및 권한 확인**
+    - 요청 헤더의 JWT 토큰 확인.
+    - 게스트(`ROLE_GUEST`) 로그인 상태이거나 토큰이 없으면 저장 불가
+- **입력값 유효성 검사 (Validation)**
+    - `animationName`, `originalCode`, `languageId`, `jsonData` 누락 여부 확인
+    - `originalCode`에 이미지 확장자(.png, .jpg 등)가 포함되면 `ImageNotSupportedException` 발생 후 `400 Bad Request` 처리
+    - `jsonData`가 유효한 JSON 구조인지 ObjectMapper로 파싱 테스트, 실패 시 `400 Bad Request`
+- **존재 여부 확인**
+    - 토큰에 해당하는 사용자가 DB에 존재하는지, `languageId`가 실제 DB에 있는지 확인 (`404 Not Found`)
 
 ---
 
-### ⭕ 좋은 예시 vs ❌ 나쁜 예시
+### 성공 Response
 
-- **나쁜 예시 (무엇을 했는지 알 수 없음) 😥**
-    - `수정함`
-    - `진짜 최종`
-    - `로그인 에러 고침`
-    - `이것저것 많이 함`
-- **좋은 예시 (태그와 명확한 목적) 😊**
-    - `feat: 카카오 소셜 로그인 기능 추가`
-    - `fix: 메인 페이지 이미지 안 뜨는 오류 수정`
-    - `docs: README.md 프로젝트 실행 방법 추가`
-    - `chore: 스프링 부트 관련 라이브러리 추가`
+- **201 Created**
+
+```json
+{
+  "animationId": 12,
+  "animationName": "버블 정렬 시각화",
+  "originalCode": "int[] arr = {5, 3, 1};",
+  "jsonData": "{\"frames\": 10, \"type\": \"sort\"}",
+  "languageId": 1,
+  "languageName": "Java",
+  "creatorUserNumber": 5,
+  "creatorUsername": "개발자킴",
+  "createdAt": "2026-04-11"
+}
+```
 
 ---
+
+### 실패 Response
+
+- **400 Bad Request — 잘못된 요청 / 이미지 첨부 시도**
+
+```json
+{
+  "status": 400,
+  "message": "이미지 파일은 지원하지 않습니다. 텍스트 형태의 코드를 직접 입력해 주세요.",
+  "timestamp": "2026-04-11T19:03:00"
+}
+```
+
+- **403 Forbidden — 게스트 권한으로 생성 시도**
+
+```json
+{
+  "status": 403,
+  "message": "접근 권한이 없습니다.",
+  "timestamp": null
+}
+```
+
+---
+
+### 삭제 후/생성 시 처리사항 (Backend Logic)
+
+| **처리** | **설명** |
+| --- | --- |
+| **참조 조회** | 사용자(`user_mst`)와 언어(`language_mst`) 정보를 DB에서 조회 |
+| **JSON 검증** | `objectMapper.readTree()`를 사용해 `jsonData` 포맷 무결성 검증 |
+| **데이터 삽입** | `animation_mst` 테이블에 데이터 Insert (생성일자 `createdAt` 자동 기록) |
+
+---
+
+### **실행되는 SQL 예시**
+
+```sql
+-- 1. 외래키 검증을 위한 조회
+SELECT * FROM user_mst WHERE user_id = 5;
+SELECT * FROM language_mst WHERE language_id = 1;
+
+-- 2. 애니메이션 생성
+INSERT INTO animation_mst (animation_name, original_code, json_data, create_date, user_id, language_id)
+VALUES ('버블 정렬 시각화', 'int[] arr = {5, 3, 1};', '{"frames": 10, "type": "sort"}', '2026-04-11', 5, 1);
+```
+
+## 애니메이션 목록 조회 API
+
+### API 개요
+
+| **항목** | **내용** |
+| --- | --- |
+| **API 이름** | 애니메이션 목록 조회 (Get Animations) |
+| **설명** | 저장된 전체 애니메이션 목록을 요약하여 조회함 (페이징 지원) |
+| **HTTP Method** | `GET` |
+| **Endpoint** | `/api/animations` |
+| **요청 형식** | Query Parameter |
+| **응답 형식** | JSON (Array) |
+| **인증 필요 여부** | 필요 (회원인 `ROLE_USER` 및 비회원 `ROLE_GUEST` 모두 가능) |
+
+---
+
+### **Request Parameter 설명**
+
+| **파라미터명** | **위치** | **타입** | **설명** | **필수** |
+| --- | --- | --- | --- | --- |
+| `page` | Query | Integer | 페이지 번호 (0부터 시작) | X |
+| `size` | Query | Integer | 페이지당 반환할 항목 수 | X |
+
+---
+
+### Validations (백엔드 검증 규칙)
+
+- **로그인 및 권한 확인**
+    - 요청 헤더의 JWT 토큰 확인.
+    - 회원 또는 게스트 권한이 없는 비인증 요청인 경우 401 Unauthorized 처리
+
+---
+
+### 성공 Response
+
+- **200 OK**
+
+```json
+[
+  {
+    "animationId": 1,
+    "animationName": "버블 정렬 시각화",
+    "languageId": 1,
+    "languageName": "Java",
+    "creatorUserNumber": 5,
+    "creatorUsername": "개발자킴",
+    "createdAt": "2026-04-11"
+  },
+  {
+    "animationId": 2,
+    "animationName": "DFS 탐색",
+    "languageId": 2,
+    "languageName": "Python",
+    "creatorUserNumber": 3,
+    "creatorUsername": "알고리즘마스터",
+    "createdAt": "2026-04-11"
+  }
+]
+```
+
+---
+
+### 실패 Response
+
+- **401 Unauthorized - 인증 정보 없음**
+
+```json
+{
+  "status": 401,
+  "message": "인증이 필요합니다.",
+  "timestamp": null
+}
+```
+
+---
+
+### 조회 시 처리사항 (Backend Logic)
+
+| **처리** | **설명** |
+| --- | --- |
+| **권한 검증** | `validateViewer` 메서드를 통해 조회 권한 확인 |
+| **데이터 조회** | `findAllWithLanguageAndCreator()`를 호출하여 `animation_mst`, `language_mst`, `user_mst`를 Fetch Join으로 한 번에 조회 (N+1 문제 방지) |
+| **페이징 처리** | 조회된 리스트에서 `page`와 `size` 값에 따라 메모리상에서 서브리스트 분리 |
+
+---
+
+### 실행되는 SQL 예시
+
+```sql
+-- Fetch Join으로 연관된 언어와 작성자 정보를 한 번의 쿼리로 조회
+SELECT a.*, l.*, u.* FROM animation_mst a 
+INNER JOIN language_mst l ON a.language_id = l.language_id 
+INNER JOIN user_mst u ON a.user_id = u.user_id;
+```
+
+## 애니메이션 상세 조회 API
+
+### API 개요
+
+| **항목** | **내용** |
+| --- | --- |
+| **API 이름** | 애니메이션 상세 조회 (Get Animation Detail) |
+| **설명** | 특정 애니메이션의 원본 코드 및 JSON 데이터를 포함한 상세 정보를 조회함 |
+| **HTTP Method** | `GET` |
+| **Endpoint** | `/api/animations/{animationId}` |
+| **요청 형식** | Path Variable |
+| **응답 형식** | JSON |
+| **인증 필요 여부** | 필요 (회원인 `ROLE_USER` 및 비회원 `ROLE_GUEST` 모두 가능) |
+
+---
+
+### Request Parameter 설명
+
+| **파라미터명** | **위치** | **타입** | **설명** | **필수** |
+| --- | --- | --- | --- | --- |
+| `animationId` | Path | Integer | 조회할 애니메이션의 고유 ID (`animation_code`) | O |
+
+---
+
+## Validations (백엔드 검증 규칙)
+
+- **로그인 및 권한 확인**
+    - 요청 헤더의 JWT 토큰 확인.
+    - 권한이 없는 비인증 요청인 경우 401 Unauthorized 처리
+- **존재 여부 확인**
+    - `animationId`에 해당하는 애니메이션 기록이 DB에 존재하는지 확인
+    - 없으면 404 Not Found 처리
+
+---
+
+## 성공 Response
+
+- **200 OK**
+
+```json
+{
+  "animationId": 12,
+  "animationName": "버블 정렬 시각화",
+  "originalCode": "int[] arr = {5, 3, 1};",
+  "jsonData": "{\"frames\": 10, \"type\": \"sort\"}",
+  "languageId": 1,
+  "languageName": "Java",
+  "creatorUserNumber": 5,
+  "creatorUsername": "개발자킴",
+  "createdAt": "2026-04-11"
+}
+```
+
+---
+
+## 실패 Response
+
+- **401 Unauthorized - 인증 정보 없음**
+
+```json
+{
+  "status": 401,
+  "message": "인증이 필요합니다.",
+  "timestamp": null
+}
+```
+
+- **404 Not Found - 존재하지 않는 애니메이션**
+
+```json
+{
+  "status": 404,
+  "message": "애니메이션을 찾을 수 없습니다.",
+  "timestamp": "2026-04-11T19:28:00"
+}
+```
+
+---
+
+### 조회 시 처리사항 (Backend Logic)
+
+| **처리** | **설명** |
+| --- | --- |
+| **권한 검증** | `validateViewer` 메서드를 통해 조회 권한(회원/비회원) 유효성 확인 |
+| **단건 데이터 조회** | `findByIdWithLanguageAndCreator()`를 호출하여 특정 ID의 애니메이션 데이터와 작성자, 언어 정보를 Fetch Join으로 한 번에 조회 |
+
+---
+
+### 실행되는 SQL 예시
+
+```sql
+-- 특정 ID에 대해 Fetch Join으로 연관된 언어와 작성자 정보를 함께 조회
+SELECT a.*, l.*, u.* FROM animation_mst a 
+INNER JOIN language_mst l ON a.language_id = l.language_id 
+INNER JOIN user_mst u ON a.user_id = u.user_id
+WHERE a.animation_code = 12;
+```
