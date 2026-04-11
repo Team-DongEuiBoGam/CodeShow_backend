@@ -3,7 +3,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:codeshow}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8&sslmode=REQUIRED
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8&sslmode=REQUIRED
     username: ${DB_USERNAME}  # 본인 DB 유저명
     password: ${DB_PASSWORD}  # 본인 DB 비밀번호
   jpa:
