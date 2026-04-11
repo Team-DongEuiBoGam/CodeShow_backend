@@ -3,7 +3,9 @@
 <br>
 
 <details>
-<summary> ## 회원가입 API
+<summary>
+
+## 회원가입 API
 
 ### API 개요
 
