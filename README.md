@@ -1,6 +1,5 @@
 # AI 시스템
 ---
-<br>
 
 <details>
 <summary> <h2> AI 코드 분석 API </summary>
