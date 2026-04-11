@@ -1,6 +1,5 @@
 # 애니메이션
 ---
-<br>
 
 <details>
 <summary> <h2> 애니메이션 저장 API </summary>
