@@ -3,7 +3,7 @@
 <br>
 
 <details>
-<summary> <h3> 회원가입 API </summary>
+<summary> <h2> 회원가입 API </summary>
 <br>
 
 ### API 개요
@@ -107,8 +107,11 @@ VALUES ('developer_kim', '$2a$10$w...암호화된문자열...', '개발자킴', 
 ```
 </details>
   
-
-## 로그인 API
+---
+<br>
+<details>
+<summary> <h2> 로그인 API </summary>
+<br>
 
 ### API 개요
 
@@ -205,11 +208,13 @@ VALUES ('developer_kim', '$2a$10$w...암호화된문자열...', '개발자킴', 
 -- 1. 사용자 인증 및 토큰 발급을 위한 정보 조회
 SELECT * FROM user_mst WHERE login_id = 'developer_kim';
 ```
-
+</details>
 ---
 <br>
 
-## 비회원 로그인 API
+<details>
+<summary> <h2> 비회원 로그인 API </summary>
+<br>
 
 ### API 개요
 
@@ -261,10 +266,14 @@ SELECT * FROM user_mst WHERE login_id = 'developer_kim';
 | **데이터 미저장** | 비회원은 `user_mst` DB에 데이터를 저장하지 않습니다. |
 | **임시 이름 생성** | `guest-` 접두사와 현재 시간(System.currentTimeMillis)을 조합하여 임시 닉네임을 생성합니다. |
 | **JWT 발급** | GUEST 권한을 가진 임시 Access Token을 즉시 생성하여 응답으로 반환합니다. |
+</details>
+
 ---
 <br>
 
-## 내 정보 조회 API
+<details>
+<summary> <h2> 내 정보 조회 API </summary>
+<br>
 
 ### API 개요
 
