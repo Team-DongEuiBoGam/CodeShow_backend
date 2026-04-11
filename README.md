@@ -107,7 +107,6 @@ VALUES ('developer_kim', '$2a$10$w...암호화된문자열...', '개발자킴', 
 ```
 </details>
   
----
 <br>
 <details>
 <summary> <h2> 로그인 API </summary>
@@ -209,7 +208,7 @@ VALUES ('developer_kim', '$2a$10$w...암호화된문자열...', '개발자킴', 
 SELECT * FROM user_mst WHERE login_id = 'developer_kim';
 ```
 </details>
----
+
 <br>
 
 <details>
@@ -256,7 +255,6 @@ SELECT * FROM user_mst WHERE login_id = 'developer_kim';
     }
     ```
     
-
 <br>
 
 ### 처리사항 (Backend Logic)
@@ -268,7 +266,6 @@ SELECT * FROM user_mst WHERE login_id = 'developer_kim';
 | **JWT 발급** | GUEST 권한을 가진 임시 Access Token을 즉시 생성하여 응답으로 반환합니다. |
 </details>
 
----
 <br>
 
 <details>
