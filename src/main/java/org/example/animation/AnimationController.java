@@ -1,5 +1,6 @@
 package org.example.animation;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.example.animation.dto.AnimationCreateRequest;
@@ -24,18 +25,12 @@ public class AnimationController {
     private final AnimationService animationService;
     private final AiService aiService;
 
-    // 💡 이 생성자 하나만 남겨두면 스프링이 알아서 두 서비스 모두 주입(Autowired)해 줍니다!
     public AnimationController(AnimationService animationService, AiService aiService) {
         this.animationService = animationService;
         this.aiService = aiService;
     }
 
-    // AI 분석 결과만 미리 확인하는 API
-    @PostMapping("/analyze")
-    public String analyzeOnly(@RequestBody String originalCode) {
-        return aiService.analyzeCode(originalCode);
-    }
-
+    @Operation(summary = "애니메이션 목록 조회", description = "현재 사용자가 생성한 애니메이션들의 요약 목록을 페이지네이션 형태로 가져옵니다.")
     @GetMapping
     public List<AnimationSummaryResponse> getAnimations(
             @AuthenticationPrincipal CustomUserPrincipal principal,
@@ -45,6 +40,7 @@ public class AnimationController {
         return animationService.getAnimations(principal, page, size);
     }
 
+    @Operation(summary = "애니메이션 상세 조회", description = "특정 ID에 해당하는 애니메이션의 상세 정보와 코드 구조를 가져옵니다.")
     @GetMapping("/{animationId}")
     public AnimationDetailResponse getAnimation(
             @PathVariable Integer animationId,
@@ -53,6 +49,7 @@ public class AnimationController {
         return animationService.getAnimation(animationId, principal);
     }
 
+    @Operation(summary = "새 애니메이션 생성", description = "AI 분석을 바탕으로 새로운 코드 애니메이션 데이터를 저장하고 생성합니다.")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public AnimationDetailResponse createAnimation(
