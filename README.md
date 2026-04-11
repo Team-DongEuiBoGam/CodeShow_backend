@@ -1,6 +1,5 @@
 # 인증 시스템
 ---
-<br>
 
 <details>
 <summary> <h2> 회원가입 API </summary>
