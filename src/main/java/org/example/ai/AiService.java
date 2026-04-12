@@ -28,13 +28,17 @@ public class AiService {
         // 1. 프론트엔드가 정확히 기대하는 JSON 형식을 프롬프트에 예시로 박아줍니다.
         String prompt = "다음 코드를 분석해서 1) 'explanation'과 2) 애니메이션 시각화를 위한 'jsonData'를 만들어줘. \n" +
                 "단, explanation과 JSON 내부의 모든 텍스트는 반드시 **한국어(Korean)**로 작성해!\n" +
-                "반드시 아래의 예시와 동일한 JSON 구조(Schema)를 지켜서 응답해줘.\n" +
+                "반드시 아래의 예시와 동일한 JSON 구조(Schema)를 지켜서 응답해줘. \n" +
+                "특히 jsonData 안에는 반드시 'variables' 배열과 'operations' 배열이 있어야 해!\n\n" +
                 "[JSON 응답 구조 예시]\n" +
                 "{\n" +
-                "  \"explanation\": \"코드에 대한 설명\",\n" +
+                "  \"explanation\": \"코드에 대한 전체 설명\",\n" +
                 "  \"jsonData\": {\n" +
-                "    \"frames\": [\n" +
-                "       { \"line\": 1, \"variables\": {\"a\": 10} }\n" +
+                "    \"variables\": [\n" +
+                "       { \"name\": \"변수명\", \"type\": \"자료형\", \"value\": \"값\", \"description\": \"변수에 대한 설명\" }\n" +
+                "    ],\n" +
+                "    \"operations\": [\n" +
+                "       { \"target\": \"대상변수명\", \"source\": \"참조변수명(없으면 생략)\", \"description\": \"수행한 동작 설명\" }\n" +
                 "    ]\n" +
                 "  }\n" +
                 "}\n\n" +
