@@ -18,7 +18,7 @@ public class AiService {
     ) {
         this.model = model;
         this.restClient = RestClient.builder()
-                .baseUrl("[https://api.openai.com/v1/chat/completions](https://api.openai.com/v1/chat/completions)")
+                .baseUrl("https://api.openai.com/v1/chat/completions")
                 .defaultHeader("Authorization", "Bearer " + apiKey)
                 .defaultHeader("Content-Type", "application/json")
                 .build();
