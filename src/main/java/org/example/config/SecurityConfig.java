@@ -73,8 +73,11 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // 프론트엔드의 로컬 주소(5173 포트)를 허용
-        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+        // 프론트엔드의 주소를 허용
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:5173",
+                "https://codeshow-ai-app.onrender.com"
+        ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
