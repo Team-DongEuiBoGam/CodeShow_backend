@@ -58,7 +58,7 @@ public class SecurityConfig {
                         .accessDeniedHandler(forbiddenAccessDeniedHandler))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/auth/signup", "/api/auth/login", "/api/auth/guest-login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/signup", "/api/auth/login", "/api/auth/guest-login", "/api/ai/analyze").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/health").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/animations").hasRole("USER")
                         .requestMatchers(HttpMethod.GET, "/api/animations/**").hasAnyRole("USER", "GUEST")
