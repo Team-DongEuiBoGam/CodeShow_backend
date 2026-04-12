@@ -18,7 +18,7 @@ public class AiService {
     ) {
         this.model = model;
         this.restClient = RestClient.builder()
-                .baseUrl("https://api.openai.com/v1/chat/completions")
+                .baseUrl("[https://api.openai.com/v1/chat/completions](https://api.openai.com/v1/chat/completions)")
                 .defaultHeader("Authorization", "Bearer " + apiKey)
                 .defaultHeader("Content-Type", "application/json")
                 .build();
@@ -27,17 +27,16 @@ public class AiService {
     public String analyzeCode(String code) {
         String prompt = "다음 코드를 분석해서 1) 'explanation'과 2) 애니메이션 시각화를 위한 'jsonData'를 만들어줘. " +
                 "단, explanation과 JSON 내부의 모든 description 등 텍스트 값은 반드시 **한국어(Korean)**로 작성해줘! " +
-                "반드시 JSON 객체 하나로만 응답해줘.\n코드: \n" + code; //
+                "반드시 JSON 객체 하나로만 응답해줘.\n코드: \n" + code;
 
         Map<String, Object> requestBody = Map.of(
                 "model", this.model,
                 "messages", List.of(
-                        Map.of("role", "system", "content", "너는 코드를 분석해서 JSON 형식으로만 완벽하게 응답하는 프로그래밍 전문 AI야. 모든 설명은 한국어로 해."), //
+                        Map.of("role", "system", "content", "너는 코드를 분석해서 JSON 형식으로만 완벽하게 응답하는 프로그래밍 전문 AI야. 모든 설명은 한국어로 해."),
                         Map.of("role", "user", "content", prompt)
                 ),
                 "temperature", 0.7,
-                // OpenAI에게 무조건 순수 JSON 객체만 반환하도록 강제
-                "response_format", Map.of("type", "json_object")
+                "response_format", Map.of("type", "json_object") // JSON 모드 강제
         );
 
         Map<String, Object> response = restClient.post()
@@ -49,9 +48,11 @@ public class AiService {
         Map<String, Object> message = (Map<String, Object>) choices.get(0).get("message");
         String content = (String) message.get("content");
 
-        // 마크다운(```json)이 붙어 오면 제거
-        if (content != null && content.trim().startsWith("```json")) {
-            content = content.replace("```json", "").replace("```", "").trim();
+        // 마크다운 및 불필요한 텍스트 제거 로직
+        if (content != null) {
+            content = content.replaceAll("(?i)^```json\\s*", "")
+                    .replaceAll("(?i)```$", "")
+                    .trim();
         }
 
         return content;
