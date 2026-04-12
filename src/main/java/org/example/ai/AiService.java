@@ -25,18 +25,29 @@ public class AiService {
     }
 
     public String analyzeCode(String code) {
-        String prompt = "다음 코드를 분석해서 1) 'explanation'과 2) 애니메이션 시각화를 위한 'jsonData'를 만들어줘. " +
-                "단, explanation과 JSON 내부의 모든 description 등 텍스트 값은 반드시 **한국어(Korean)**로 작성해줘! " +
-                "반드시 JSON 객체 하나로만 응답해줘.\n코드: \n" + code;
+        // 1. 프론트엔드가 정확히 기대하는 JSON 형식을 프롬프트에 예시로 박아줍니다.
+        String prompt = "다음 코드를 분석해서 1) 'explanation'과 2) 애니메이션 시각화를 위한 'jsonData'를 만들어줘. \n" +
+                "단, explanation과 JSON 내부의 모든 텍스트는 반드시 **한국어(Korean)**로 작성해!\n" +
+                "반드시 아래의 예시와 동일한 JSON 구조(Schema)를 지켜서 응답해줘.\n" +
+                "[JSON 응답 구조 예시]\n" +
+                "{\n" +
+                "  \"explanation\": \"코드에 대한 설명\",\n" +
+                "  \"jsonData\": {\n" +
+                "    \"frames\": [\n" +
+                "       { \"line\": 1, \"variables\": {\"a\": 10} }\n" +
+                "    ]\n" +
+                "  }\n" +
+                "}\n\n" +
+                "분석할 코드: \n" + code;
 
         Map<String, Object> requestBody = Map.of(
                 "model", this.model,
                 "messages", List.of(
-                        Map.of("role", "system", "content", "너는 코드를 분석해서 JSON 형식으로만 완벽하게 응답하는 프로그래밍 전문 AI야. 모든 설명은 한국어로 해."),
+                        Map.of("role", "system", "content", "너는 코드를 분석해서 지정된 JSON 형식으로만 완벽하게 응답하는 프로그래밍 전문 AI야."),
                         Map.of("role", "user", "content", prompt)
                 ),
-                "temperature", 0.7,
-                "response_format", Map.of("type", "json_object") // JSON 모드 강제
+                "temperature", 0.1, // 2. 창의성을 낮추고 일관성(정확성)을 극대화합니다.
+                "response_format", Map.of("type", "json_object")
         );
 
         Map<String, Object> response = restClient.post()
@@ -48,10 +59,10 @@ public class AiService {
         Map<String, Object> message = (Map<String, Object>) choices.get(0).get("message");
         String content = (String) message.get("content");
 
-        // 마크다운 및 불필요한 텍스트 제거 로직
+        // 3. 정규식 대신 단순 replace로 안전하게 마크다운 잔여물을 제거합니다.
         if (content != null) {
-            content = content.replaceAll("(?i)^```json\\s*", "")
-                    .replaceAll("(?i)```$", "")
+            content = content.replace("```json", "")
+                    .replace("```", "")
                     .trim();
         }
 
