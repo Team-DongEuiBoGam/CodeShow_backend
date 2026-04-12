@@ -74,8 +74,9 @@ class AnimationControllerTest {
                 .andExpect(jsonPath("$[0].animationName").value("로딩 애니메이션"));
     }
 
+    // 🌟 수정된 부분 1: 이제 게스트는 조회도 불가하므로 메서드명을 상황에 맞게 변경
     @Test
-    void guestCanViewButCannotSaveAnimations() throws Exception {
+    void guestCannotViewAndCannotSaveAnimations() throws Exception {
         String userToken = signupAndGetAccessToken("owner01", "오너");
 
         mockMvc.perform(post("/api/animations")
@@ -97,10 +98,10 @@ class AnimationControllerTest {
 
         String guestToken = objectMapper.readTree(guestLoginResponse).get("accessToken").asText();
 
+        // 🌟 수정된 부분 2: 비회원(게스트)은 이제 목록 조회가 불가능하므로 isForbidden()을 기대해야 합니다!
         mockMvc.perform(get("/api/animations")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + guestToken))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].animationName").value("공개 애니메이션"));
+                .andExpect(status().isForbidden()); // 원래 isOk()였던 부분을 isForbidden()으로 변경
 
         mockMvc.perform(post("/api/animations")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + guestToken)

@@ -37,10 +37,13 @@ public class AnimationService {
 
     @Transactional(readOnly = true)
     public List<AnimationSummaryResponse> getAnimations(CustomUserPrincipal principal, Integer page, Integer size) {
-        // 회원과 비회원 모두 조회는 가능하다.
-        // 단순 페이지네이션은 메모리에서 처리(초기 구현). 대용량 데이터에는 DB 기반 페이지네이션 권장.
-        validateViewer(principal);
-        List<AnimationMetadata> all = animationMetadataRepository.findAllWithLanguageAndCreator();
+        // 🌟 수정된 부분 1: 로그인한 회원(USER)인지 먼저 검증
+        if (principal == null || principal.getRole() != UserRole.USER || principal.getUserId() == null) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "로그인한 회원만 본인의 저장 목록을 조회할 수 있습니다.");
+        }
+
+        // 🌟 수정된 부분 2: 본인의 userId를 넘겨서 본인이 작성한 목록만 가져옴
+        List<AnimationMetadata> all = animationMetadataRepository.findAllByCreatorIdWithLanguageAndCreator(principal.getUserId());
 
         if (page == null || size == null) {
             return all.stream().map(this::toSummaryResponse).toList();
@@ -58,11 +61,19 @@ public class AnimationService {
 
     @Transactional(readOnly = true)
     public AnimationDetailResponse getAnimation(Integer animationId, CustomUserPrincipal principal) {
-        // 상세 조회도 조회 권한만 있으면 가능하다.
-        // 단건 조회 역시 fetch join 메서드를 사용한다.
-        validateViewer(principal);
+        // 🌟 수정된 부분 3: 상세 조회도 회원만 가능하도록 권한 체크
+        if (principal == null || principal.getRole() != UserRole.USER || principal.getUserId() == null) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "조회 권한이 없습니다.");
+        }
+
         AnimationMetadata metadata = animationMetadataRepository.findByIdWithLanguageAndCreator((long) animationId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "애니메이션을 찾을 수 없습니다."));
+
+        // 🌟 수정된 부분 4: 조회하려는 애니메이션의 작성자가 현재 요청한 사용자가 맞는지 확인
+        if (!metadata.getCreator().getId().equals(principal.getUserId())) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "본인이 저장한 애니메이션만 볼 수 있습니다.");
+        }
+
         return toDetailResponse(metadata);
     }
 
