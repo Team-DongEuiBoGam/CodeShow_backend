@@ -5,7 +5,10 @@
 <br>
 
 ## 🔗 Live Demo
+**Web**
 - https://codeshow-ai-app.onrender.com
+**Backend API**
+- https://codeshow-backend.onrender.com/swagger-ui/index.html
 
 <br>
 
