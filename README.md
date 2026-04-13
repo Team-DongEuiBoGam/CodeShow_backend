@@ -57,7 +57,7 @@ src/main/java/org/example/
 - JDK 21
 - MySQL 8.0+
 <br>
-**Environment Variables (.env 또는 application.yml)**
+**Environment Variables (.env 또는 application.yml)** <br>
 프로젝트 실행을 위해 아래의 환경 변수 설정이 필요합니다.
 
 ```YAML
