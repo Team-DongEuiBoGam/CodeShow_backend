@@ -104,4 +104,4 @@ $ java -jar build/libs/codeshow_backend-0.0.1-SNAPSHOT.jar
 <img width="800" height="252" alt="Image" src="https://github.com/user-attachments/assets/5933515d-f7f3-4761-a2e2-f6c5e8fad97f" />
 
 ### 릴레이션 구조
-<img width="740" height="600" alt="Image" src="https://github.com/user-attachments/assets/fa1c132e-cca0-407d-8723-28085a62b019" />
+<img width="600" height="486" alt="Image" src="https://github.com/user-attachments/assets/fa1c132e-cca0-407d-8723-28085a62b019" />
