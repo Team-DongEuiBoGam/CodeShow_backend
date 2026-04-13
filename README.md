@@ -347,6 +347,8 @@ WHERE a.animation_code = 12;
 | 응답 형식 | JSON |
 | 인증 필요 여부 | 필요 (회원인 ROLE_USER 중 본인만 가능, 비회원 게스트 불가) |
 
+<br>
+
 ### Request Path Variable & Body
 
 클라이언트에서 전송하는 경로 변수 및 JSON 파라미터:
@@ -368,6 +370,8 @@ WHERE a.animation_code = 12;
 | `animationId` | Path | Integer | 수정할 애니메이션의 고유 ID | Ο |
 | `animationName` | Body | String | 수정할 애니메이션 이름 (최대 25자) | Ο |
 
+<br>
+
 ### **Validations (백엔드 검증 규칙)**
 
 - **로그인 및 권한 확인**
@@ -378,6 +382,8 @@ WHERE a.animation_code = 12;
     - 조회한 애니메이션의 작성자(creator)와 현재 로그인한 사용자의 ID가 일치하는지 확인 (불일치 시 403 Forbidden).
 - **입력값 유효성 검사**
     - `animationName` 누락 여부 및 25자 초과 여부 확인 (실패 시 400 Bad Request).
+
+<br>
 
 ### **성공 Response**
 
@@ -397,6 +403,7 @@ WHERE a.animation_code = 12;
     }
     ```
     
+<br>
 
 ### 실패 Response
 
@@ -420,6 +427,7 @@ WHERE a.animation_code = 12;
     }
     ```
     
+<br>
 
 ### 처리사항 (Backend Logic)
 
@@ -427,6 +435,8 @@ WHERE a.animation_code = 12;
 | --- | --- |
 | 권한 및 참조 조회 | `animation_mst`에서 데이터를 조회하고, `user_mst`의 정보와 비교하여 소유자 권한 검증 |
 | 데이터 업데이트 | 엔티티의 `updateName()`을 호출하여 `animation_mst` 테이블의 이름 변경 (Dirty Checking) |
+
+<br>
 
 ### **실행되는 SQL 예시**
 
@@ -457,6 +467,8 @@ UPDATE animation_mst SET animation_name = '수정된 멋진 이름' WHERE animat
 | 응답 형식 | 없음 (No Content) |
 | 인증 필요 여부 | 필요 (회원인 ROLE_USER 중 본인만 가능, 비회원 게스트 불가) |
 
+<br>
+
 ### **Request Path Variable**
 
 - **Path Variable:** `animationId` (삭제할 대상 애니메이션의 ID)
@@ -468,6 +480,8 @@ UPDATE animation_mst SET animation_name = '수정된 멋진 이름' WHERE animat
     | --- | --- | --- | --- | --- |
     | `animationId` | Path | Integer | 삭제할 애니메이션의 고유 ID | Ο |
 
+<br>
+
 ### **Validations (백엔드 검증 규칙)**
 
 - **로그인 및 권한 확인**
@@ -477,6 +491,8 @@ UPDATE animation_mst SET animation_name = '수정된 멋진 이름' WHERE animat
     - `animationId`에 해당하는 애니메이션이 실제 DB에 존재하는지 확인 (404 Not Found).
     - 조회한 애니메이션의 작성자(creator)와 현재 로그인한 사용자의 ID가 일치하는지 확인 (불일치 시 403 Forbidden).
 
+<br>
+
 ### 성공 Response
 
 - **204 No Content**
@@ -484,7 +500,8 @@ UPDATE animation_mst SET animation_name = '수정된 멋진 이름' WHERE animat
     ```
     (응답 Body 없음)
     ```
-    
+
+<br>    
 
 ### **실패 Response**
 
@@ -507,7 +524,8 @@ UPDATE animation_mst SET animation_name = '수정된 멋진 이름' WHERE animat
       "timestamp": "2026-04-11T19:08:00"
     }
     ```
-    
+
+<br>    
 
 ### 처리사항 (Backend Logic)
 
@@ -515,6 +533,8 @@ UPDATE animation_mst SET animation_name = '수정된 멋진 이름' WHERE animat
 | --- | --- |
 | 권한 및 참조 조회 | `animation_mst`에서 데이터를 조회하고 소유자 권한 검증 (수정 로직과 동일한 검증 메서드 사용) |
 | 데이터 삭제 | `animation_mst` 테이블에서 해당 레코드 Delete 처리 |
+
+<br>
 
 ### **실행되는 SQL 예시**
 
