@@ -436,3 +436,95 @@ SELECT * FROM animation_mst a JOIN user_mst u ON a.user_id = u.user_id WHERE a.a
 
 -- 2. 애니메이션 이름 수정
 UPDATE animation_mst SET animation_name = '수정된 멋진 이름' WHERE animation_code = 12;
+```
+</details>
+
+<br>
+
+<details>
+<summary> <h2> 애니메이션 삭제 API </summary>
+<br>
+
+### API 개요
+
+| **항목** | **내용** |
+| --- | --- |
+| API 이름 | 애니메이션 삭제 (Delete Animation) |
+| 설명 | 저장된 애니메이션을 데이터베이스에서 삭제함 |
+| HTTP Method | DELETE |
+| Endpoint | `/api/animations/{animationId}` |
+| 요청 형식 | 없음 (Path Variable만 사용) |
+| 응답 형식 | 없음 (No Content) |
+| 인증 필요 여부 | 필요 (회원인 ROLE_USER 중 본인만 가능, 비회원 게스트 불가) |
+
+### **Request Path Variable**
+
+- **Path Variable:** `animationId` (삭제할 대상 애니메이션의 ID)
+
+- **Request Path Variable**
+    
+    
+    | **파라미터명** | **위치** | **타입** | **설명** | **필수** |
+    | --- | --- | --- | --- | --- |
+    | `animationId` | Path | Integer | 삭제할 애니메이션의 고유 ID | Ο |
+
+### **Validations (백엔드 검증 규칙)**
+
+- **로그인 및 권한 확인**
+    - 요청 헤더의 JWT 토큰 확인.
+    - 게스트(ROLE_GUEST) 로그인 상태이거나 토큰이 없으면 삭제 불가.
+- **본인 확인 및 존재 여부**
+    - `animationId`에 해당하는 애니메이션이 실제 DB에 존재하는지 확인 (404 Not Found).
+    - 조회한 애니메이션의 작성자(creator)와 현재 로그인한 사용자의 ID가 일치하는지 확인 (불일치 시 403 Forbidden).
+
+### 성공 Response
+
+- **204 No Content**
+    
+    ```
+    (응답 Body 없음)
+    ```
+    
+
+### **실패 Response**
+
+- **403 Forbidden** - 게스트 권한으로 시도하거나 본인이 생성하지 않은 애니메이션 삭제 시도
+    
+    ```json
+    {
+      "status": 403,
+      "message": "본인이 저장한 애니메이션만 수정/삭제할 수 있습니다.",
+      "timestamp": "2026-04-11T19:08:00"
+    }
+    ```
+    
+- **404 Not Found** - 존재하지 않는 애니메이션 삭제 시도
+    
+    ```json
+    {
+      "status": 404,
+      "message": "애니메이션을 찾을 수 없습니다.",
+      "timestamp": "2026-04-11T19:08:00"
+    }
+    ```
+    
+
+### 처리사항 (Backend Logic)
+
+| **처리** | **설명** |
+| --- | --- |
+| 권한 및 참조 조회 | `animation_mst`에서 데이터를 조회하고 소유자 권한 검증 (수정 로직과 동일한 검증 메서드 사용) |
+| 데이터 삭제 | `animation_mst` 테이블에서 해당 레코드 Delete 처리 |
+
+### **실행되는 SQL 예시**
+
+```sql
+-- 1. 애니메이션 정보 및 소유자 조회
+SELECT * FROM animation_mst a JOIN user_mst u ON a.user_id = u.user_id WHERE a.animation_code = 12;
+
+-- 2. 애니메이션 삭제
+DELETE FROM animation_mst WHERE animation_code = 12;
+```
+</details>
+
+<br>
