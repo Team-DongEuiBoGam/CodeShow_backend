@@ -78,7 +78,8 @@ OPENAI_API_KEY: your_openai_api_key
 **Build & Run**
 ```Bash
 # 1. Repository Clone
-$git clone [https://github.com/Team-DongEuiBoGam/CodeShow_backend.git$](https://github.com/Team-DongEuiBoGam/CodeShow_backend.git$) cd CodeShow_backend
+$ git clone https://github.com/Team-DongEuiBoGam/CodeShow_backend.git
+$ cd CodeShow_backend
 
 # 2. Build
 $ ./gradlew clean build
