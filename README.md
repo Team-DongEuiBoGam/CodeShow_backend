@@ -5,11 +5,15 @@
 <br>
 
 ## 🔗 Live Demo
+**Web**
 - https://codeshow-ai-app.onrender.com
+
+**Backend**
+- https://codeshow-backend.onrender.com/swagger-ui/index.html
 
 <br>
 
-## 🛠 Tech Stack
+## 🛠 기술 스택 (Tech Stack)
 - **Language**: Java 21
 - **Framework**: Spring Boot 3.3.5
 - **Database**: MySQL, Spring Data JPA
@@ -20,7 +24,7 @@
 
 <br>
 
-## 🏗 Architecture & Flow
+## 🏗 아키텍처 및 흐름 (Architecture & Flow)
 1. **Client Request**: 클라이언트(React 등)에서 코드 분석 및 애니메이션 생성 요청
 2. **Authentication**: `JwtAuthenticationFilter`를 통해 회원은 DB 기반 인증, 비회원은 Guest 권한으로 API 접근 제어
 3. **AI Processing**: `AiService`에서 프롬프트 엔지니어링을 통해 코드를 분석하고, 애니메이션 시각화를 위한 정형화된 JSON 데이터 추출
@@ -28,7 +32,7 @@
 
 <br>
 
-## 💡 Key Technical Decisions & Features
+## 💡 주요 기술적 결정 및 특징 (Key Technical Decisions & Features)
 
 **1. OpenAI API 응답의 정형화 (JSON 강제)**
 - AI 모델이 일관성 없는 텍스트를 반환하는 것을 방지하기 위해 `response_format: { "type": "json_object" }` 옵션을 적용했습니다.
@@ -44,7 +48,7 @@
 
 <br>
 
-## 📁 Directory Structure
+## 📁 프로젝트 구조 (Project Structure)
 ```text
 src/main/java/org/example/
 ├── ai/          # OpenAI API 통신 및 프롬프트 처리
@@ -57,16 +61,17 @@ src/main/java/org/example/
 
 <br>
 
-## 🚀 Getting Started
+## 🚀 시작하기 (Getting Started)
 **Prerequisites**
 - JDK 21
 - MySQL 8.0+
 
 <br>
 
-**Environment Variables (.env 또는 application.yml)**
+**환경 변수 설정 (Environment Variables)**
 - 프로젝트 실행을 위해 아래의 환경 변수 설정이 필요합니다.
 
+- application.yml
 ```YAML
 PORT: 8080
 DB_HOST: localhost
@@ -80,7 +85,7 @@ OPENAI_API_KEY: your_openai_api_key
 
 <br>
 
-**Build & Run**
+**빌드 및 실행 (Build & Run)**
 ```Bash
 # 1. Repository Clone
 $ git clone https://github.com/Team-DongEuiBoGam/CodeShow_backend.git
@@ -95,7 +100,7 @@ $ java -jar build/libs/codeshow_backend-0.0.1-SNAPSHOT.jar
 
 <br>
 
-## 📖 API 명세서
+## 📖 API 명세서 (API Documentation)
 
 ### [🔗 애니메이션 API 명세서](https://github.com/Team-DongEuiBoGam/CodeShow_backend/blob/feature/animation-save/README.md)
 ### [🔗 인증 시스템 API 명세서](https://github.com/Team-DongEuiBoGam/CodeShow_backend/blob/feature/auth/README.md)
@@ -103,10 +108,10 @@ $ java -jar build/libs/codeshow_backend-0.0.1-SNAPSHOT.jar
 
 <br>
 
-## 🗄 DB 구조
+## 🗄 데이터베이스 구조 (Database Structure)
 
 ### ERD
 <img width="800" height="252" alt="Image" src="https://github.com/user-attachments/assets/5933515d-f7f3-4761-a2e2-f6c5e8fad97f" />
 
-### 릴레이션 구조
+### 릴레이션
 <img width="600" height="486" alt="Image" src="https://github.com/user-attachments/assets/fa1c132e-cca0-407d-8723-28085a62b019" />
