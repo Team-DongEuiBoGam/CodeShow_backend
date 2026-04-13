@@ -124,7 +124,9 @@ SELECT * FROM language_mst WHERE language_id = 1;
 INSERT INTO animation_mst (animation_name, original_code, json_data, create_date, user_id, language_id)
 VALUES ('버블 정렬 시각화', 'int[] arr = {5, 3, 1};', '{"frames": 10, "type": "sort"}', '2026-04-11', 5, 1);
 ```
-</details> <br>
+</details>
+
+<br>
 
 <details>
 <summary> <h2> 애니메이션 목록 조회 API </summary>
@@ -222,7 +224,9 @@ SELECT a.*, l.*, u.* FROM animation_mst a
 INNER JOIN language_mst l ON a.language_id = l.language_id 
 INNER JOIN user_mst u ON a.user_id = u.user_id;
 ```
-</details> <br>
+</details>
+
+<br>
 
 <details>
 <summary> <h2> 애니메이션 상세 조회 API </summary>
@@ -323,4 +327,112 @@ INNER JOIN language_mst l ON a.language_id = l.language_id
 INNER JOIN user_mst u ON a.user_id = u.user_id
 WHERE a.animation_code = 12;
 ```
-</details> <br>
+</details>
+
+<br>
+
+<details>
+<summary> <h2> 애니메이션 수정 API </summary>
+<br>
+
+### API 개요
+
+| **항목** | **내용** |
+| --- | --- |
+| API 이름 | 애니메이션 수정 (Update Animation) |
+| 설명 | 생성된 애니메이션의 이름을 수정함 |
+| HTTP Method | PATCH |
+| Endpoint | `/api/animations/{animationId}` |
+| 요청 형식 | JSON (Request Body) |
+| 응답 형식 | JSON |
+| 인증 필요 여부 | 필요 (회원인 ROLE_USER 중 본인만 가능, 비회원 게스트 불가) |
+
+### Request Path Variable & Body
+
+클라이언트에서 전송하는 경로 변수 및 JSON 파라미터:
+
+- **Path Variable:** `animationId` (수정할 대상 애니메이션의 ID)
+- **JSON:**
+    
+    ```json
+    {
+      "animationName": "수정된 이름"
+    }
+    ```
+    
+
+**Request 파라미터 설명**
+
+| **파라미터명** | **위치** | **타입** | **설명** | **필수** |
+| --- | --- | --- | --- | --- |
+| `animationId` | Path | Integer | 수정할 애니메이션의 고유 ID | Ο |
+| `animationName` | Body | String | 수정할 애니메이션 이름 (최대 25자) | Ο |
+
+### **Validations (백엔드 검증 규칙)**
+
+- **로그인 및 권한 확인**
+    - 요청 헤더의 JWT 토큰 확인.
+    - 게스트(ROLE_GUEST) 로그인 상태이거나 토큰이 없으면 수정 불가.
+- **본인 확인 및 존재 여부**
+    - `animationId`에 해당하는 애니메이션이 실제 DB에 존재하는지 확인 (404 Not Found).
+    - 조회한 애니메이션의 작성자(creator)와 현재 로그인한 사용자의 ID가 일치하는지 확인 (불일치 시 403 Forbidden).
+- **입력값 유효성 검사**
+    - `animationName` 누락 여부 및 25자 초과 여부 확인 (실패 시 400 Bad Request).
+
+### **성공 Response**
+
+- **200 OK**
+    
+    ```json
+    {
+      "animationId": 12,
+      "animationName": "수정된 멋진 이름",
+      "originalCode": "int[] arr = {5, 3, 1};",
+      "jsonData": "{\"frames\": 10, \"type\": \"sort\"}",
+      "languageId": 1,
+      "languageName": "Java",
+      "creatorUserNumber": 5,
+      "creatorUsername": "개발자킴",
+      "createdAt": "2026-04-11"
+    }
+    ```
+    
+
+### 실패 Response
+
+- **400 Bad Request** - 잘못된 요청 (이름 누락 또는 글자 수 초과)
+    
+    ```json
+    {
+      "status": 400,
+      "message": "애니메이션 이름은 필수입니다.",
+      "timestamp": "2026-04-11T19:05:00"
+    }
+    ```
+    
+- **403 Forbidden** - 게스트 권한으로 시도하거나 본인이 생성하지 않은 애니메이션 수정 시도
+    
+    ```json
+    {
+      "status": 403,
+      "message": "본인이 저장한 애니메이션만 수정/삭제할 수 있습니다.",
+      "timestamp": "2026-04-11T19:05:00"
+    }
+    ```
+    
+
+### 처리사항 (Backend Logic)
+
+| **처리** | **설명** |
+| --- | --- |
+| 권한 및 참조 조회 | `animation_mst`에서 데이터를 조회하고, `user_mst`의 정보와 비교하여 소유자 권한 검증 |
+| 데이터 업데이트 | 엔티티의 `updateName()`을 호출하여 `animation_mst` 테이블의 이름 변경 (Dirty Checking) |
+
+### **실행되는 SQL 예시**
+
+```sql
+-- 1. 애니메이션 정보 및 소유자 조회
+SELECT * FROM animation_mst a JOIN user_mst u ON a.user_id = u.user_id WHERE a.animation_code = 12;
+
+-- 2. 애니메이션 이름 수정
+UPDATE animation_mst SET animation_name = '수정된 멋진 이름' WHERE animation_code = 12;
