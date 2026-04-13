@@ -2,6 +2,8 @@ package org.example.animation;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;  // 추가된 부분
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete; // 추가된 부분
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -126,5 +128,48 @@ class AnimationControllerTest {
                 .getResponse()
                 .getContentAsString();
         return objectMapper.readTree(signupResponse).get("accessToken").asText();
+    }
+
+    @Test
+    void userCanUpdateAndDeleteAnimation() throws Exception {
+        // 1. 회원가입 및 토큰 발급
+        String accessToken = signupAndGetAccessToken("updatetest", "수정테스터");
+
+        // 2. 테스트용 애니메이션 먼저 생성 (POST)
+        String createResponse = mockMvc.perform(post("/api/animations")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of(
+                                "animationName", "원래 이름",
+                                "originalCode", "print('hello')",
+                                "languageId", 2, // Python
+                                "jsonData", "{}"
+                        ))))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        // 생성된 애니메이션의 ID 추출
+        Integer animationId = objectMapper.readTree(createResponse).get("animationId").asInt();
+
+        // 3. 이름 수정 테스트 (PATCH)
+        mockMvc.perform(patch("/api/animations/" + animationId)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of(
+                                "animationName", "수정된 멋진 이름"
+                        ))))
+                .andExpect(status().isOk()) // 200 OK 기대
+                .andExpect(jsonPath("$.animationName").value("수정된 멋진 이름")); // 이름이 잘 바뀌었는지 검증
+
+        // 4. 애니메이션 삭제 테스트 (DELETE)
+        mockMvc.perform(delete("/api/animations/" + animationId)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken))
+                .andExpect(status().isNoContent()); // 204 No Content 기대
+
+        // 5. 삭제가 잘 되었는지 목록 조회로 최종 확인 (빈 배열이 나와야 함)
+        mockMvc.perform(get("/api/animations")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
     }
 }
