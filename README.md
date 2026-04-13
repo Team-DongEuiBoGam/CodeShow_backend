@@ -50,9 +50,44 @@ src/main/java/org/example/
 └── health/      # 서버 및 DB 상태 확인용 Health Check
 ```
 
----
+<br>
 
-# API 명세서
+## 🚀 Getting Started
+**Prerequisites**
+- JDK 21
+- MySQL 8.0+
+
+**Environment Variables (.env 또는 application.yml)**
+프로젝트 실행을 위해 아래의 환경 변수 설정이 필요합니다.
+```YAML
+PORT: 8080
+DB_HOST: localhost
+DB_PORT: 3306
+DB_NAME: codeshow
+DB_USERNAME: your_db_username
+DB_PASSWORD: your_db_password
+JWT_SECRET: your_jwt_secret_key_string
+OPENAI_API_KEY: your_openai_api_key
+```
+
+<br>
+
+**Build & Run**
+```Bash
+# 1. Repository Clone
+$ git clone [https://github.com/Team-DongEuiBoGam/CodeShow_backend.git](https://github.com/Team-DongEuiBoGam/CodeShow_backend.git)
+$ cd CodeShow_backend
+
+# 2. Build
+$ ./gradlew clean build
+
+# 3. Run
+$ java -jar build/libs/codeshow_backend-0.0.1-SNAPSHOT.jar
+```
+
+<br>
+
+## 📖 API 명세서
 
 ### [🔗 애니메이션 API 명세서](https://github.com/Team-DongEuiBoGam/CodeShow_backend/blob/feature/animation-save/README.md)
 ### [🔗 인증 시스템 API 명세서](https://github.com/Team-DongEuiBoGam/CodeShow_backend/blob/feature/auth/README.md)
@@ -60,7 +95,7 @@ src/main/java/org/example/
 
 <br>
 
-# DB 구조
+## 🗄 DB 구조
 
 <details>
 <summary> <h2> ERD </h2></summary>
