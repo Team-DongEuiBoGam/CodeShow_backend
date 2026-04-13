@@ -48,6 +48,7 @@ src/main/java/org/example/
 ├── common/      # 전역 예외 처리(GlobalExceptionHandler) 및 커스텀 예외
 ├── config/      # Security, Swagger, JWT, CORS 설정
 └── health/      # 서버 및 DB 상태 확인용 Health Check
+```
 
 ---
 
