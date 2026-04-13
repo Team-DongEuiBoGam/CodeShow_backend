@@ -59,6 +59,7 @@ src/main/java/org/example/
 <br>
 **Environment Variables (.env 또는 application.yml)**
 프로젝트 실행을 위해 아래의 환경 변수 설정이 필요합니다.
+
 ```YAML
 PORT: 8080
 DB_HOST: localhost
