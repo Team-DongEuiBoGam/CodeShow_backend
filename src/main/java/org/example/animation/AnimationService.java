@@ -4,6 +4,7 @@ import java.util.List;
 import org.example.animation.dto.AnimationCreateRequest;
 import org.example.animation.dto.AnimationDetailResponse;
 import org.example.animation.dto.AnimationSummaryResponse;
+import org.example.animation.dto.AnimationUpdateRequest;
 import org.example.auth.CustomUserPrincipal;
 import org.example.auth.User;
 import org.example.auth.UserRepository;
@@ -37,12 +38,12 @@ public class AnimationService {
 
     @Transactional(readOnly = true)
     public List<AnimationSummaryResponse> getAnimations(CustomUserPrincipal principal, Integer page, Integer size) {
-        // 🌟 수정된 부분 1: 로그인한 회원(USER)인지 먼저 검증
+        // 로그인한 회원(USER)인지 먼저 검증
         if (principal == null || principal.getRole() != UserRole.USER || principal.getUserId() == null) {
             throw new ApiException(HttpStatus.FORBIDDEN, "로그인한 회원만 본인의 저장 목록을 조회할 수 있습니다.");
         }
 
-        // 🌟 수정된 부분 2: 본인의 userId를 넘겨서 본인이 작성한 목록만 가져옴
+        // 본인의 userId를 넘겨서 본인이 작성한 목록만 가져옴
         List<AnimationMetadata> all = animationMetadataRepository.findAllByCreatorIdWithLanguageAndCreator(principal.getUserId());
 
         if (page == null || size == null) {
@@ -61,7 +62,7 @@ public class AnimationService {
 
     @Transactional(readOnly = true)
     public AnimationDetailResponse getAnimation(Integer animationId, CustomUserPrincipal principal) {
-        // 🌟 수정된 부분 3: 상세 조회도 회원만 가능하도록 권한 체크
+        // 상세 조회도 회원만 가능하도록 권한 체크
         if (principal == null || principal.getRole() != UserRole.USER || principal.getUserId() == null) {
             throw new ApiException(HttpStatus.FORBIDDEN, "조회 권한이 없습니다.");
         }
@@ -69,7 +70,7 @@ public class AnimationService {
         AnimationMetadata metadata = animationMetadataRepository.findByIdWithLanguageAndCreator((long) animationId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "애니메이션을 찾을 수 없습니다."));
 
-        // 🌟 수정된 부분 4: 조회하려는 애니메이션의 작성자가 현재 요청한 사용자가 맞는지 확인
+        // 조회하려는 애니메이션의 작성자가 현재 요청한 사용자가 맞는지 확인
         if (!metadata.getCreator().getId().equals(principal.getUserId())) {
             throw new ApiException(HttpStatus.FORBIDDEN, "본인이 저장한 애니메이션만 볼 수 있습니다.");
         }
@@ -111,6 +112,39 @@ public class AnimationService {
         );
 
         return toDetailResponse(metadata);
+    }
+
+    @Transactional
+    public AnimationDetailResponse updateAnimation(Integer animationId, AnimationUpdateRequest request, CustomUserPrincipal principal) {
+        AnimationMetadata metadata = validateAndGetMetadata(animationId, principal);
+
+        metadata.updateName(request.animationName());
+
+        return toDetailResponse(metadata);
+    }
+
+    @Transactional
+    public void deleteAnimation(Integer animationId, CustomUserPrincipal principal) {
+        // 1. 공통 검증 메서드를 통해 권한 확인 및 엔티티 조회
+        AnimationMetadata metadata = validateAndGetMetadata(animationId, principal);
+
+        // 2. 데이터 삭제
+        animationMetadataRepository.delete(metadata);
+    }
+
+    private AnimationMetadata validateAndGetMetadata(Integer animationId, CustomUserPrincipal principal) {
+        if (principal == null || principal.getRole() != UserRole.USER || principal.getUserId() == null) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "로그인한 회원만 접근할 수 있습니다.");
+        }
+
+        AnimationMetadata metadata = animationMetadataRepository.findById((long) animationId)
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "애니메이션을 찾을 수 없습니다."));
+
+        if (!metadata.getCreator().getId().equals(principal.getUserId())) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "본인이 저장한 애니메이션만 수정/삭제할 수 있습니다.");
+        }
+
+        return metadata;
     }
 
     private void validateViewer(CustomUserPrincipal principal) {

@@ -88,4 +88,8 @@ public class AnimationMetadata {
     public Language getLanguage() {
         return language;
     }
+
+    public void updateName(String newName) {
+        this.name = newName;
+    }
 }

@@ -6,16 +6,11 @@ import java.util.List;
 import org.example.animation.dto.AnimationCreateRequest;
 import org.example.animation.dto.AnimationDetailResponse;
 import org.example.animation.dto.AnimationSummaryResponse;
+import org.example.animation.dto.AnimationUpdateRequest;
 import org.example.auth.CustomUserPrincipal;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.example.ai.AiService;
 
 @RestController
@@ -57,5 +52,25 @@ public class AnimationController {
             @AuthenticationPrincipal CustomUserPrincipal principal
     ) {
         return animationService.createAnimation(request, principal);
+    }
+
+    @Operation(summary = "애니메이션 이름 수정", description = "생성된 애니메이션의 이름을 수정합니다.")
+    @PatchMapping("/{animationId}")
+    public AnimationDetailResponse updateAnimation(
+            @PathVariable Integer animationId,
+            @Valid @RequestBody AnimationUpdateRequest request,
+            @AuthenticationPrincipal CustomUserPrincipal principal
+    ) {
+        return animationService.updateAnimation(animationId, request, principal);
+    }
+
+    @Operation(summary = "애니메이션 삭제", description = "저장된 애니메이션을 삭제합니다.")
+    @DeleteMapping("/{animationId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT) // 204 No Content 반환
+    public void deleteAnimation(
+            @PathVariable Integer animationId,
+            @AuthenticationPrincipal CustomUserPrincipal principal
+    ) {
+        animationService.deleteAnimation(animationId, principal);
     }
 }
