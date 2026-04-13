@@ -68,7 +68,7 @@ src/main/java/org/example/
 
 <br>
 
-**환경 변수 설정 (Environment Variables)**
+**Environment Variables**
 - 프로젝트 실행을 위해 아래의 환경 변수 설정이 필요합니다.
 
 - application.yml
