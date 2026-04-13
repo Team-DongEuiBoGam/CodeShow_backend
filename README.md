@@ -59,10 +59,6 @@ src/main/java/org/example/
 
 <br>
 
----
-
-<br>
-
 # DB 구조
 
 <details>
